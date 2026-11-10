@@ -14,6 +14,9 @@ function Dashboard() {
   const [description, setDescription] = useState("");
   const [editId, setEditId] = useState(null);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
+  const completedTasks = tasks.filter((task) => task.completed).length;
+const pendingTasks = tasks.filter((task) => !task.completed).length;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -104,6 +107,18 @@ function Dashboard() {
     }
   };
 
+  const handleToggleComplete = async (task) => {
+  try {
+    await api.put(`/tasks/${task._id}`, {
+      completed: !task.completed,
+    });
+
+    fetchTasks();
+  } catch (err) {
+    setError(err.response?.data?.message || "Unable to update task status.");
+  }
+};
+
   const handleCancel = () => {
     setEditId(null);
     setTitle("");
@@ -115,11 +130,18 @@ function Dashboard() {
     navigate("/login", { replace: true });
   };
 
-  const filteredTasks = tasks.filter((task) =>
-    `${task.title} ${task.description}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const filteredTasks = tasks.filter((task) => {
+  const matchesSearch = `${task.title} ${task.description}`
+    .toLowerCase()
+    .includes(search.toLowerCase());
+
+  const matchesFilter =
+    filter === "all" ||
+    (filter === "pending" && !task.completed) ||
+    (filter === "completed" && task.completed);
+
+  return matchesSearch && matchesFilter;
+});
 
   return (
     <div className="dashboard">
@@ -181,9 +203,9 @@ function Dashboard() {
           </div>
 
           <div className="stat-card">
-            <span>Active Tasks</span>
-            <h2>{tasks.length}</h2>
-            <p>Tasks in your workspace</p>
+            <span>Pending Tasks</span>
+<h2>{pendingTasks}</h2>
+<p>Tasks waiting to be completed</p>
           </div>
         </section>
 
@@ -256,6 +278,29 @@ function Dashboard() {
               <span className="task-count">{tasks.length}</span>
             </div>
 
+            <div className="filter-buttons">
+  <button
+    className={filter === "all" ? "active" : ""}
+    onClick={() => setFilter("all")}
+  >
+    All
+  </button>
+
+  <button
+    className={filter === "pending" ? "active" : ""}
+    onClick={() => setFilter("pending")}
+  >
+    Pending
+  </button>
+
+  <button
+    className={filter === "completed" ? "active" : ""}
+    onClick={() => setFilter("completed")}
+  >
+    Completed
+  </button>
+</div>
+
             <input
               className="search-input"
               type="search"
@@ -280,15 +325,25 @@ function Dashboard() {
               <div className="task-list">
                 {filteredTasks.map((task) => (
                   <article className="task-card" key={task._id}>
-                    <div className="task-card-top">
-                      <div className="task-dot"></div>
-                      <span className="task-label">TASK</span>
-                    </div>
+                   <div className="task-card-top">
+  <div className="task-dot"></div>
+  <span className="task-label">TASK</span>
+
+  <span className={task.completed ? "status-badge completed" : "status-badge pending"}>
+    {task.completed ? "Completed" : "Pending"}
+  </span>
+</div>
 
                     <h3>{task.title}</h3>
                     <p>{task.description}</p>
 
                     <div className="task-actions">
+                      <button
+  className="edit-btn"
+  onClick={() => handleToggleComplete(task)}
+>
+  {task.completed ? "Mark Pending" : "Mark Complete"}
+</button>
                       <button
                         className="edit-btn"
                         onClick={() => handleEdit(task)}

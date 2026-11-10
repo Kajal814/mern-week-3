@@ -660,3 +660,49 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.filter-buttons button {
+  padding: 9px 18px;
+  border: 1px solid #e2e5f1;
+  border-radius: 8px;
+  background: white;
+  color: #555;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.filter-buttons button:hover {
+  background: #f0efff;
+  color: #6257e8;
+}
+
+.filter-buttons button.active {
+  background: #6257e8;
+  color: white;
+  border-color: #6257e8;
+}
+.status-badge {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-badge.completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #b45309;
+}
